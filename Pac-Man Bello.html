@@ -1,0 +1,120 @@
+<html>
+
+	<head>
+		
+		<title>Pac-Man</title>
+		
+		<style>
+		
+			body{
+				font-family: courier;
+				color: yellow;
+				background-color: black;
+				overflow-y: hidden;
+			
+			}
+			
+			#container{
+				width: 1000px;
+				height: 1000px;
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+				
+		
+			}
+			canvas{
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+				width: 900px;
+				height: 900px;
+				border: 3px solid blue;
+				background-color: black;
+			}
+			
+			img{
+			
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+			
+			}
+			
+			#stats{
+				position: relative;
+				display: block;
+				margin-left: 1000px;
+				margin-top: -800px;
+				width: 300px;
+				height: 800px;
+				padding: 15px;
+				font-size: 25px;
+		
+			}
+			
+			#start{
+				display: block;
+				margin-left: 400px;
+				margin-top: 50px;
+				width: 215px;
+				height: 77.75px;
+				font-size: 40px;
+			
+			}
+		}
+		
+		</style>
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script>
+			
+			window.onload=function(){
+				
+				
+			
+			
+			}
+			
+			function player (width, height, color, x, y) {
+			
+				this.width=width;
+				this.height=height;
+				this.x=x;
+				this.y=y;
+				ctx=this.canvas.getContext("2d");
+				ctx.fillStyle = color;
+				ctx.fillRect(this.x, this.y, this.width, this.height);
+			
+			
+			}
+		
+		
+		
+		
+		</script>
+	
+	</head>
+	
+	<body>
+		<div id="container">
+	
+			<img src="images/logo.png"></img>
+	
+			<canvas id="playspace"></canvas>
+		
+			<div id="stats">
+				<b><p>Lifes: 3</p>
+				<p>Points: 0</p></b>
+		
+			</div>
+			<button id="start">Start</button>
+		</div>
+	
+	</body>
+
+
+
+
+
+</html>
