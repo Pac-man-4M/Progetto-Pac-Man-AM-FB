@@ -1,0 +1,140 @@
+<html>
+
+	<head>
+		<title>Credits</title>
+		
+		<style>
+		
+			body{
+				overflow-y: hidden;
+				font-family: courier;
+			}
+		
+		
+		
+			#container{
+				width: 1000px;
+				height: 1000px;
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+				
+		
+			}
+			
+			p{
+				color: yellow;
+				font-size: 30px;
+			
+			
+			}
+			
+			#thanks{
+				width: 500px;
+				height: 200px;
+				margin-top: 100px;
+				margin-left: 260px;
+				padding: 20px;
+				
+			}
+			
+			#restart{
+				margin-left: 800px;
+				width: 194.5px; 
+				height: 163px;
+			
+			
+			}
+
+			#back{
+				margin-left: -100px;
+				margin-top: -125px;
+				width: 194.5px; 
+				height: 163px;
+			
+			
+			}
+			
+		
+		
+		</style>
+		
+		<script>
+			
+			window.onload=function(){
+				var r=document.getElementById("restart");
+				var b=document.getElementById("back");
+				r.onmouseover=cambiaRestart;
+				r.onmouseout=ritornaRestart;
+
+				b.onmouseover=cambiaBack;
+				b.onmouseout=ritornaBack;
+
+				function cambiaRestart(){
+					r.src="images/restart - Copia.png";
+				}
+
+				function ritornaRestart(){
+					r.src="images/restart.png";
+				}
+
+				function cambiaBack(){
+					b.src="images/back - Copia.png";
+				}
+
+				function ritornaBack(){
+					b.src="images/back.png";
+				}
+				
+
+			}
+
+			
+			
+		
+		
+		
+		</script>
+	
+	</head>
+
+
+	<body style="background-color: black">
+	
+	
+		<div id="container">
+	
+			<img id="princ" src="images/credit.gif" style="margin-left: 150px"></img>
+			
+			<b><p style="margin-left: 280px">A special thanks to: </p></b>
+			
+			<div id="thanks">
+				<img id="princ" src="images/blughost.jpg" style=" width: 79.5px; height: 56.5px; float: left; margin-top: 10px;"></img>
+				<b><p style="font-size: 25px;">Francesco Barchi</p></b>
+				<img id="princ" src="images/blughost.jpg" style=" width: 79.5px; height: 56.5px; float: left; margin-top: 10px;"></img>
+				<b><p style="font-size: 25px; margin-top: 45px;">Antonio Monaco</p></b>
+				
+				
+			
+			
+			</div>
+			
+			<a href="Pac-Man Bello.html"><img id="restart"  src="images/restart.png" style="width: 260px; height: 130px"></img></a>
+			<a href="home.html"><img id="back"  src="images/back.png" style="width: 260px; height: 125px"></img></a>
+			
+			
+		</div>
+	
+	
+	
+	
+	
+	</body>
+
+
+
+
+
+
+
+</html>

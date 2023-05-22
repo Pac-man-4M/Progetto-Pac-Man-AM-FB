@@ -5,112 +5,754 @@
 		<title>Pac-Man</title>
 		
 		<style>
+			
 		
 			body{
 				font-family: courier;
-				color: yellow;
 				background-color: black;
-				overflow-y: hidden;
+				margin: 0;
+				overflow-y:  hidden;
+				overflow-x: hidden;
 			
 			}
-			
+
+			p{
+				color: white;
+				font-size: 20px;
+				padding: 10px;
+
+			}
+
 			#container{
-				width: 1000px;
-				height: 1000px;
-				display: block;
-				margin-left: auto;
-				margin-right: auto;
 				
-		
-			}
-			canvas{
 				display: block;
 				margin-left: auto;
 				margin-right: auto;
-				width: 900px;
-				height: 900px;
-				border: 3px solid blue;
-				background-color: black;
+				margin-left: 38%;
+				margin-top: -2%;
 			}
-			
-			img{
-			
-				display: block;
+
+			#vite{
+				margin-left: 470px;
+				margin-top:  -60px;;
+			}
+
+			#immagine{
+				display:block;
 				margin-left: auto;
 				margin-right: auto;
-			
+				width: 696px;
+				height: 396;
 			}
+
+
 			
-			#stats{
-				position: relative;
-				display: block;
-				margin-left: 1000px;
-				margin-top: -800px;
-				width: 300px;
-				height: 800px;
-				padding: 15px;
-				font-size: 25px;
-		
-			}
 			
-			#start{
-				display: block;
-				margin-left: 400px;
-				margin-top: 50px;
-				width: 215px;
-				height: 77.75px;
-				font-size: 40px;
-			
-			}
-		}
-		
 		</style>
 		
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 		<script>
+
 			
-			window.onload=function(){
+			
+			window.onload = function () {
+
+				var contatorePunti=0;
+				var puntiOttenuti=document.getElementById("punteggio");
+
+				var contatoreVite=3;
+				var vite=document.getElementById("vite");
+
+				var canvas = document.getElementById('canvas');
+				var playSpace = canvas.getContext('2d');
+
+				canvas.width = innerWidth;
+				canvas.height = innerHeight;
+
+
+				//classi
+				class Mappa {
+					static width=40;
+					static height=40;
+					constructor({ position }) {
+						this.position = position;
+						this.width = 40;
+						this.height = 40;
+					}
+
+					riempi() {
+						playSpace.fillStyle = "blue";
+						playSpace.fillRect(this.position.x, this.position.y, this.width, this.height);
+					}
+
+				}
+
+				class Pacman {
+					constructor({ position, velocity }) {
+						this.position = position;
+						this.velocity=velocity;
+						this.radius=15;
+						this.raggioApertura=0.5;
+						this.movimentoBocca=0.1;
+						this.rotazione=0;
+					}
+
+					costruisciPacman() {
+
+						playSpace.save();
+						playSpace.translate(this.position.x, this.position.y);
+						playSpace.rotate(this.rotazione);
+						playSpace.translate(-this.position.x, -this.position.y);
+						playSpace.beginPath();
+						playSpace.lineTo(this.position.x, this.position.y);
+						playSpace.arc(this.position.x, this.position.y, this.radius, this.raggioApertura, Math.PI*2-this.raggioApertura);
+						playSpace.fillStyle = "yellow";
+						playSpace.fill();
+						playSpace.closePath();
+						playSpace.restore();
+					}
+
+					muovi(){
+						
+						this.costruisciPacman();
+						this.position.x+=this.velocity.x;
+						this.position.y+=this.velocity.y;
+
+						if(this.raggioApertura<0 || this.raggioApertura>0.5){
+							this.movimentoBocca=-this.movimentoBocca;
+						}
+						this.raggioApertura+=this.movimentoBocca;
+					}
+
+				}
+
+				class Fantasma {
+					static x=Mappa.width *7+ Mappa.width/2;
+					static y=Mappa.height *11+ Mappa.height/2;
+					constructor({ position, velocity, color }) {
+						this.position = position;
+						this.velocity=velocity;
+						this.color=color;
+						this.radius=15;
+						this.collisione=[];
+					}
+
+					costruisciFantasma() {
+
+						playSpace.beginPath();
+						playSpace.arc(this.position.x, this.position.y, this.radius, 0, Math.PI*2);
+						playSpace.fillStyle = this.color;
+						playSpace.fill();
+						playSpace.closePath();
+					}
+
+					muoviFantasma(){
+						
+						this.costruisciFantasma();
+						this.position.x+=this.velocity.x;
+						this.position.y+=this.velocity.y;
+					}
+
+				}
+
+				class Punto {
+					constructor({ position }) {
+						this.position = position;
+						this.radius=3;
+					}
+
+					costruisciPunto() {
+						
+						playSpace.beginPath();
+						playSpace.arc(this.position.x, this.position.y, this.radius, 0, Math.PI*2);
+						playSpace.fillStyle = "white";
+						playSpace.fill();
+						playSpace.closePath();
+					}
+
+
+				}
+
+				
+				//variabili
+
+				var punti=[];
+				var confini = [];
+				var fantasmi=[
+					new Fantasma({
+						position:{
+							x:Mappa.width * 13 + Mappa.width/2,
+							y:Mappa.height + Mappa.height/2
+						},
+
+						velocity:{
+							x: -2,
+							y: 0
+						},
+
+						color:"lime"
+					}),
+
+				    new Fantasma({
+						position:{
+							x:Mappa.width + Mappa.width/2,
+							y:Mappa.height *19 + Mappa.height/2
+						},
+
+						velocity:{
+							x: 2,
+							y: 0
+						},
+
+						color:"orange"
+					}),
+
+					new Fantasma({
+						position:{
+							x:Mappa.width *13+ Mappa.width/2,
+							y:Mappa.height *19 + Mappa.height/2
+						},
+
+						velocity:{
+							x: 0,
+							y: -2
+						},
+
+						color:"pink"
+					}),
+
+					new Fantasma({
+						position:{
+							x:Mappa.width *7+ Mappa.width/2,
+							y:Mappa.height *11 + Mappa.height/2
+						},
+
+						velocity:{
+							x: 2,
+							y: 0
+						},
+
+						color:"red"
+					}),
+				];
+				var pacman=new Pacman({
+					position:{
+						x:Mappa.width + Mappa.width/2,
+						y:Mappa.height + Mappa.height/2
+					},
+
+					velocity:{
+						x: 0,
+						y: 0
+					}
+				})
+
+				
+
 				
 				
-			
-			
+				var codeKeys={
+					sx:{
+						pressed: false
+					},
+					up:{
+						pressed: false
+					},
+					dx:{
+						pressed: false
+					},
+					down:{
+						pressed: false
+					}
+				}
+
+
+
+				var ultimoTasto;
+
+
+				//mappa
+
+				var map = [
+                    ["-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"],
+                    ["-", " ", ".", ".", ".", ".", ".", "-", ".", ".", ".", ".", ".", ".", "-"],
+                    ["-", ".", "-", ".", "-", "-", ".", "-", ".", "-", "-", ".", "-", ".", "-"],
+                    ["-", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "-"],
+					["-", ".", "-", ".", "-", ".", "-", "-", "-", ".", "-", ".", "-", ".", "-"],
+					["-", ".", ".", ".", "-", ".", ".", "-", ".", ".", "-", ".", ".", ".", "-"],
+					["-", "-", "-", ".", "-", "-", ".", "-", ".", "-", "-", ".", "-", "-", "-"],
+					[" ", " ", "-", ".", "-", ".", ".", ".", ".", ".", "-", ".", "-", " ", " "],
+					["-", "-", "-", ".", "-", ".", "-", "-", "-", ".", "-", ".", "-", "-", "-"],
+					["-", "-", "-", ".", ".", ".", "-", "-", "-", ".", ".", ".", "-", "-", "-"],
+					["-", "-", "-", ".", "-", ".", "-", "-", "-", ".", "-", ".", "-", "-", "-"],
+					[" ", " ", "-", ".", "-", ".", ".", ".", ".", ".", "-", ".", "-", " ", " "],
+					["-", "-", "-", ".", "-", ".", "-", "-", "-", ".", "-", ".", "-", "-", "-"],
+					["-", ".", ".", ".", ".", ".", ".", "-", ".", ".", ".", ".", ".", ".", "-"],
+					["-", ".", "-", "-", ".", "-", ".", "-", ".", "-", ".", "-", "-", ".", "-"],
+					["-", ".", ".", "-", ".", ".", ".", ".", ".", ".", ".", "-", ".", ".", "-"],
+					["-", "-", ".", "-", "-", ".", "-", "-", "-", ".", "-", "-", ".", "-", "-"],
+					["-", ".", ".", ".", ".", ".", ".", "-", ".", ".", ".", ".", ".", ".", "-"],
+					["-", ".", "-", "-", "-", "-", ".", "-", ".", "-", "-", "-", "-", ".", "-"],
+					["-", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "-"],
+                    ["-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"]
+
+				]
+
+				map.forEach((row, i) => {
+					row.forEach((symbol, j) => {
+						switch (symbol) {
+
+							//costruzione mappa
+							case "-": 
+								confini.push(
+									new Mappa({
+										position: {
+											x: Mappa.width * j,
+											y: Mappa.height * i
+										}
+									})
+								)
+								break;
+								
+								//costruzione punti
+								case ".": 
+								punti.push(
+									new Punto({
+										position: {
+											x:  j* Mappa.width + Mappa.width/2,
+											y:  i* Mappa.height + Mappa.height/2
+										}
+									})
+								)
+								break;
+						}
+					})
+				})
+
+
+				//condizione collisione
+				function gestioneCollisioni({giallo, blu}){
+					var spazio=Mappa.width/2-giallo.radius-1;
+					return(giallo.position.y-giallo.radius+giallo.velocity.y<=blu.position.y+blu.height+spazio
+							&& giallo.position.x+giallo.radius+giallo.velocity.x>=blu.position.x-spazio
+							&& giallo.position.y+giallo.radius+giallo.velocity.y>=blu.position.y-spazio
+							&& giallo.position.x-giallo.radius+giallo.velocity.x<=blu.position.x+blu.width+spazio);
+				}
+				
+
+				//movimento oggetti
+				var cancellaMovimento;
+				function movimento(){
+					cancellaMovimento=requestAnimationFrame(movimento);
+
+					//per eliminare frame precedente
+					playSpace.clearRect(0, 0, canvas.width, canvas.height);
+					
+
+					//condizione facilitata movimento in alto
+					if(codeKeys.up.pressed && ultimoTasto=="up"){
+						for(var i=0; i<confini.length; i++){
+							var confine=confini[i];
+							if(gestioneCollisioni({
+								giallo:{
+									...pacman,
+									velocity:{
+										x:0,
+										y:-5
+									}
+								},
+								blu: confine
+							})){
+								pacman.velocity.y=0;
+								break;
+							}
+							else{
+								pacman.velocity.y=-5;
+							}
+						}
+					}
+
+					//condizione facilitata movimento in basso
+					else if(codeKeys.down.pressed && ultimoTasto=="down"){
+						for(var i=0; i<confini.length; i++){
+							var confine=confini[i];
+							if(gestioneCollisioni({
+								giallo:{
+									...pacman,
+									velocity:{
+										x:0,
+										y:5
+									}
+								},
+								blu: confine
+							})){
+								pacman.velocity.y=0;
+								break;
+							}
+							else{
+								pacman.velocity.y=5;
+							}
+						}
+					}
+
+					//condizione facilitata movimento a destra
+					else if(codeKeys.dx.pressed && ultimoTasto=="dx"){
+						for(var i=0; i<confini.length; i++){
+							var confine=confini[i];
+							if(gestioneCollisioni({
+								giallo:{
+									...pacman,
+									velocity:{
+										x:5,
+										y:0
+									}
+								},
+								blu: confine
+							})){
+								pacman.velocity.x=0;
+								break;
+							}
+							else{
+								pacman.velocity.x=5;
+							}
+						}
+					}
+
+					//condizione facilitata movimento a sinistra
+					else if(codeKeys.sx.pressed && ultimoTasto=="sx"){
+						for(var i=0; i<confini.length; i++){
+							var confine=confini[i];
+							if(gestioneCollisioni({
+								giallo:{
+									...pacman,
+									velocity:{
+										x:-5,
+										y:0
+									}
+								},
+								blu: confine
+							})){
+								pacman.velocity.x=0;
+								break;
+							}
+							else{
+								pacman.velocity.x=-5;
+							}
+						}
+					}
+					
+					//condizioni creazione punteggio e collisioni 
+					for(var i=punti.length-1; i>=0; i--){
+
+						punto=punti[i];
+						punto.costruisciPunto();
+
+						if(Math.hypot(
+							punto.position.x-pacman.position.x,
+							punto.position.y-pacman.position.y)
+							< punto.radius+pacman.radius){
+								punti.splice(i, 1);
+								contatorePunti+=10;
+								puntiOttenuti.innerHTML="Score: "+ contatorePunti;
+							}
+
+							
+
+					}
+
+
+					//condizione vittoria
+					if(punti.length==0){
+						alert("You win");
+						cancelAnimationFrame(cancellaMovimento);
+						window.close("Pac-Man bello.html");
+						window.open("credits.html");
+						
+					}
+
+					
+					//codice collisione pacman
+					confini.forEach((confine) => {
+						confine.riempi();
+
+
+						if(gestioneCollisioni({
+							giallo: pacman,
+							blu: confine
+						})){
+							pacman.velocity.x=0;
+							pacman.velocity.y=0;
+						}
+					})
+
+					pacman.muovi();
+					
+
+					//rotazione pacman
+
+					if(pacman.velocity.x==5)
+						pacman.rotazione=0;
+					else if(pacman.velocity.x==-5)
+						pacman.rotazione=Math.PI;
+					else if(pacman.velocity.y==-5)
+						pacman.rotazione=(Math.PI*3)/2;
+					else if(pacman.velocity.y==5)
+						pacman.rotazione=Math.PI/2;
+
+						
+					//algoritmo fantasmi
+					fantasmi.forEach((fantasma) => {
+						fantasma.muoviFantasma();
+
+						var collisioniFantasmi=[];
+
+						confini.forEach((confine) =>{
+
+							
+							if(!collisioniFantasmi.includes("destra") && gestioneCollisioni({
+								giallo:{
+									...fantasma,
+									velocity:{
+										x:2,
+										y:0
+									}
+								},
+								blu: confine
+							})){
+								collisioniFantasmi.push("destra");
+							}
+
+							if(!collisioniFantasmi.includes("sinistra") && gestioneCollisioni({
+								giallo:{
+									...fantasma,
+									velocity:{
+										x:-2,
+										y:0
+									}
+								},
+								blu: confine
+							})){
+								collisioniFantasmi.push("sinistra");
+							}
+
+							if(!collisioniFantasmi.includes("giu") && gestioneCollisioni({
+								giallo:{
+									...fantasma,
+									velocity:{
+										x:0,
+										y:2
+									}
+								},
+									blu: confine
+							})){
+								collisioniFantasmi.push("giu");
+							}
+
+							if(!collisioniFantasmi.includes("su") && gestioneCollisioni({
+								giallo:{
+									...fantasma,
+									velocity:{
+										x:0,
+										y:-2
+									}
+								},
+								blu: confine
+							})){
+								collisioniFantasmi.push("su");
+							}
+
+						});
+
+						if(collisioniFantasmi.length > fantasma.collisione.length){
+
+							fantasma.collisione=collisioniFantasmi;
+
+						}
+						if(JSON.stringify(collisioniFantasmi)!=JSON.stringify(fantasma.collisione)){
+
+								if(fantasma.velocity.x>0)
+									fantasma.collisione.push("destra");		
+								else if(fantasma.velocity.x<0)
+									fantasma.collisione.push("sinistra");		
+								else if(fantasma.velocity.y>0)
+									fantasma.collisione.push("giu");	
+								else if(fantasma.velocity.y<0)
+									fantasma.collisione.push("su");		
+									
+
+								
+								var prossimaDirezione=fantasma.collisione.filter((inputCollisione) =>{
+									return !collisioniFantasmi.includes(inputCollisione);
+								});
+
+								var scegliDirezione=prossimaDirezione[Math.floor(Math.random()* prossimaDirezione.length)];
+
+
+								switch(scegliDirezione){
+									case "destra":{
+										fantasma.velocity.x=2;
+										fantasma.velocity.y=0;
+										break;
+									}
+									case "sinistra":{
+										fantasma.velocity.x=-2;
+										fantasma.velocity.y=0;
+										break;
+									}
+									case "giu":{
+										fantasma.velocity.x=0;
+										fantasma.velocity.y=2;
+										break;
+									}
+									case "su":{
+										fantasma.velocity.x=0;
+										fantasma.velocity.y=-2;
+										break;
+									}
+
+									
+								}
+								fantasma.collisione=[];
+								 
+						}
+						
+
+						if(Math.hypot(
+							fantasma.position.x-pacman.position.x,
+							fantasma.position.y-pacman.position.y)
+							< fantasma.radius+pacman.radius){
+								alert("You lost a life");
+								pacman.position.x=Mappa.width + Mappa.width/2;
+								pacman.position.y=Mappa.height + Mappa.height/2;
+								pacman.velocity.x=0;
+								pacman.velocity.y=0;
+								pacman.rotazione=0;
+								
+								for(var i=0; i<fantasmi.length; i++){
+									var movimentoIniziale=Math.floor(Math.random()* 2);
+									console.log(movimentoIniziale);
+									fantasmi[i].position.x=Fantasma.x;
+									fantasmi[i].position.y=Fantasma.y;
+									if(movimentoIniziale==0){
+										fantasmi[i].velocity.x=2;
+									}
+									else{
+										fantasmi[i].velocity.x=-2;
+									}
+									
+									fantasmi[i].velocity.y=0;
+								}
+								
+								contatoreVite--;
+								vite.innerHTML="Lifes: "+contatoreVite;
+								
+							}
+							
+							
+					})
+
+
+					//condizione sconfitta
+					if(contatoreVite==0){
+						alert("You lose");
+						cancelAnimationFrame(cancellaMovimento);
+						window.close("Pac-Man bello.html");
+						window.open("credits.html");
+						
+					}
+
+						
+
+						
+					
+				}
+
+				movimento();
+
+				
+
+				
+				addEventListener("keydown", (event) =>{
+					var code=event.keyCode;
+					
+					switch(code){
+						case 37:
+							codeKeys.sx.pressed=true;
+							ultimoTasto="sx";
+							break;
+
+
+						case 38:
+							codeKeys.up.pressed=true;
+							ultimoTasto="up";
+							break;
+
+						case 39:
+							codeKeys.dx.pressed=true;
+							ultimoTasto="dx";
+							break;
+
+						case 40:
+							codeKeys.down.pressed=true;
+							ultimoTasto="down";
+							break;
+						
+					}
+
+					
+				})
+
+				addEventListener("keyup", (event) =>{
+					var code=event.keyCode;
+					
+					switch(code){
+						case 37:
+							codeKeys.sx.pressed=false;
+							break;
+
+
+						case 38:
+							codeKeys.up.pressed=false;
+							break;
+
+						case 39:
+							codeKeys.dx.pressed=false;
+							break;
+
+						case 40:
+							codeKeys.down.pressed=false;
+							break;
+						
+					}
+
+					
+				})
+				
+
+				
+
+				
+
 			}
-			
-			function player (width, height, color, x, y) {
-			
-				this.width=width;
-				this.height=height;
-				this.x=x;
-				this.y=y;
-				ctx=this.canvas.getContext("2d");
-				ctx.fillStyle = color;
-				ctx.fillRect(this.x, this.y, this.width, this.height);
-			
-			
-			}
-		
-		
-		
+     
 		
 		</script>
 	
 	</head>
 	
 	<body>
+
+		<img id="immagine" src="images/immagineGioco.png">
+		
 		<div id="container">
-	
-			<img src="images/logo.png"></img>
-	
-			<canvas id="playspace"></canvas>
-		
-			<div id="stats">
-				<b><p>Lifes: 3</p>
-				<p>Points: 0</p></b>
-		
-			</div>
-			<button id="start">Start</button>
+
+		<b><p id="punteggio">Score: 0</p>
+		<p id="vite">Lifes: 3</p></b>
+		<canvas id="canvas"></canvas>
+
 		</div>
-	
+		
+		
+
 	</body>
 
 

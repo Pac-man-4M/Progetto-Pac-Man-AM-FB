@@ -1,0 +1,132 @@
+<html>
+
+
+	<head>
+
+		<style>
+
+            
+
+			body{
+				background-color: black;
+				font-family: courier;
+				color: white;
+			}
+
+            
+
+			#link1{
+				width: 368px;
+				height: 238px;
+				margin-left: 150px;
+				margin-top: 50px;
+			}
+
+
+			
+
+			#container{
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+				width: 500px;
+				height: 600px;
+
+			}
+			#mov{
+				margin-left: -90px;
+			}
+
+			p{
+				margin-top: 130px;
+				margin-left: 95px;
+			}
+			
+			#startButton{
+				width: 164px;
+				height: 99px;
+			}
+
+            #rules {
+                width: 400px;
+                height: 50px;
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                font-size: 20px;
+                margin-top: -40px;
+            }
+
+			ul{
+				margin-left: 30px;
+			}
+		</style>
+
+
+        <script>
+			window.onload=function(){
+				var start=document.getElementById("startButton");
+
+				start.onmouseover=cambia;
+				start.onmouseout=ritorna;
+
+
+				function cambia(){
+					start.src="images/start button pressed.png"
+				}
+
+				function ritorna(){
+					start.src="images/start button.png"
+				}
+			}
+
+
+		</script>
+	
+	
+	</head>
+
+	<body>
+
+		<div id="container">
+
+			<img id="logo" src="images/logo.gif" />
+
+			<img id="mov" src="images/movement.gif" />
+
+			<div id="link1">
+				<a href="Pac-Man Bello.html"><img id="startButton" src="images/start button.png"></img></a>
+			</div>
+
+
+
+
+
+
+
+		</div>
+		<div id="rules">
+			<b>
+				<p style="margin-left: 140px;">Rules:</p>
+				<ul>
+					<li>Avoid the ghosts</li>
+					<li>Collect all the points</li>
+				</ul>
+			</b>
+
+			<p style="font-size: 15px; margin-left: 70px;">@1980 Press "Start" to play</p>
+
+		</div>
+
+
+			
+
+		
+
+
+	</body>
+
+
+
+
+</html>
